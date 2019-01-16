@@ -1,2 +1,2 @@
-DELETE FROM Animals
-DBCC CHECKIDENT ('HumaneSociety.dbo.Animals',RESEED, 0)
+DELETE FROM Employees
+DBCC CHECKIDENT ('HumaneSociety.dbo.Employees',RESEED, 0)

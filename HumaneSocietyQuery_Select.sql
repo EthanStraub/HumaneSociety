@@ -1,1 +1,1 @@
-SELECT * FROM DietPlans
+SELECT * FROM Employees

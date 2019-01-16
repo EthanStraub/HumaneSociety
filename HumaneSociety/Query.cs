@@ -8,6 +8,7 @@ namespace HumaneSociety
 {
     public static class Query
     {
+        static Action<Employee, HumaneSocietyDBDataContext> employeeCRUD;
 
         internal static List<USState> GetStates()
         {
@@ -140,9 +141,78 @@ namespace HumaneSociety
             throw new NotImplementedException();
         }
 
-        internal static void RunEmployeeQueries(Employee employee, string v)
+        internal static void RunEmployeeQueries(Employee employee, string query)
         {
-            throw new NotImplementedException();
+            HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
+
+            switch (query)
+            {
+                case "create":
+                    employeeCRUD = addEmp;
+                    employeeCRUD(employee, db);
+                    break;
+                case "read":
+                    employeeCRUD = readEmp;
+                    employeeCRUD(employee, db);
+                    break;
+                case "update":
+                    employeeCRUD = updateEmp;
+                    employeeCRUD(employee, db);
+                    break;
+                case "delete":
+                    employeeCRUD = deleteEmp;
+                    employeeCRUD(employee, db);
+                    break;
+            }
+        }
+
+        internal static void addEmp(Employee selectedEmployee, HumaneSocietyDBDataContext db)
+        {
+            Employee newEmployee = new Employee();
+
+            newEmployee.FirstName = selectedEmployee.FirstName;
+            newEmployee.LastName = selectedEmployee.LastName;
+            newEmployee.UserName = selectedEmployee.UserName;
+            newEmployee.Password = selectedEmployee.Password;
+            newEmployee.EmployeeNumber = selectedEmployee.EmployeeNumber;
+            newEmployee.Email = selectedEmployee.Email;
+
+            db.Employees.InsertOnSubmit(newEmployee);
+            db.SubmitChanges();
+        }
+        internal static void readEmp(Employee selectedEmployee, HumaneSocietyDBDataContext db)
+        {
+            Employee checkedEmployee = db.Employees.Where(e => e.EmployeeNumber == selectedEmployee.EmployeeNumber).Single();
+
+            Console.WriteLine("Employee ID:" + checkedEmployee.EmployeeId);
+
+            Console.WriteLine("Employee First Name:" + checkedEmployee.FirstName);
+            Console.WriteLine("Employee Last Name:" + checkedEmployee.LastName);
+            Console.WriteLine("Employee User Name:" + checkedEmployee.UserName);
+            Console.WriteLine("Employee Password:" + checkedEmployee.Password);
+            Console.WriteLine("Employee Email:" + checkedEmployee.Email);
+            Console.WriteLine("Employee Number:" + checkedEmployee.EmployeeNumber);
+            Console.ReadLine();
+        }
+        internal static void updateEmp(Employee selectedEmployee, HumaneSocietyDBDataContext db)
+        {
+            Console.WriteLine("Enter the ID# of the employee this information is being used for.");
+            int employeeInt = int.Parse(Console.ReadLine());
+
+            Employee employeeFromDb = db.Employees.Where(e => e.EmployeeId == selectedEmployee.EmployeeId).Single();
+
+            employeeFromDb.FirstName = selectedEmployee.FirstName;
+            employeeFromDb.LastName = selectedEmployee.LastName;
+            employeeFromDb.Email = selectedEmployee.Email;
+
+            db.SubmitChanges();
+        }
+        internal static void deleteEmp(Employee selectedEmployee, HumaneSocietyDBDataContext db)
+        {
+            Employee employeeFromDb = db.Employees.Where(e => e.EmployeeNumber == selectedEmployee.EmployeeNumber && e.LastName == selectedEmployee.LastName).Single();
+
+            db.Employees.DeleteOnSubmit(employeeFromDb);
+            db.SubmitChanges();
         }
 
         internal static Animal[] SearchForAnimalByMultipleTraits()
@@ -224,6 +294,7 @@ namespace HumaneSociety
 
             newShot.AnimalId = animal.AnimalId;
             newShot.ShotId = selectedShot.ShotId;
+            newShot.DateReceived = DateTime.Today;
 
             db.AnimalShots.InsertOnSubmit(newShot);
 

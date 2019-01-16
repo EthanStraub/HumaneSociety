@@ -163,9 +163,14 @@ namespace HumaneSociety
                     employeeCRUD = deleteEmp;
                     employeeCRUD(employee, db);
                     break;
+                default:
+                    employeeCRUD = readEmp;
+                    employeeCRUD(employee, db);
+                    break;
             }
         }
 
+        //CRUD methods
         internal static void addEmp(Employee selectedEmployee, HumaneSocietyDBDataContext db)
         {
             Employee newEmployee = new Employee();
@@ -196,7 +201,15 @@ namespace HumaneSociety
         }
         internal static void updateEmp(Employee selectedEmployee, HumaneSocietyDBDataContext db)
         {
+            Console.WriteLine("");
             Console.WriteLine("Enter the ID# of the employee this information is being used for.");
+
+            Employee[] employeeList = db.Employees.ToArray();
+            foreach(Employee employee in employeeList)
+            {
+                Console.WriteLine(employee.EmployeeId +". " + employee.FirstName + " " +employee.LastName);
+            }
+
             int employeeInt = int.Parse(Console.ReadLine());
 
             Employee employeeFromDb = db.Employees.Where(e => e.EmployeeId == selectedEmployee.EmployeeId).Single();
@@ -214,6 +227,7 @@ namespace HumaneSociety
             db.Employees.DeleteOnSubmit(employeeFromDb);
             db.SubmitChanges();
         }
+        //End of CRUD methods
 
         internal static Animal[] SearchForAnimalByMultipleTraits()
         {
@@ -270,7 +284,7 @@ namespace HumaneSociety
 
             Employee employeeWithUserName = db.Employees.Where(e => e.UserName == userName).FirstOrDefault();
 
-            return employeeWithUserName == null;
+            return (employeeWithUserName != null);
         }
 
         internal static void AddUsernameAndPassword(Employee employee)
@@ -306,18 +320,36 @@ namespace HumaneSociety
             throw new NotImplementedException();
         }
 
-        internal static void RemoveAnimal(Animal animal)
+        internal static void RemoveAnimal(Animal selectedAnimal)
         {
             HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
-            db.Animals.DeleteOnSubmit(animal);
+            Animal deletedAnimal = db.Animals.Where(a => a.AnimalId == selectedAnimal.AnimalId).Single();
+
+            db.Animals.DeleteOnSubmit(deletedAnimal);
             db.SubmitChanges();
         }
 
-        internal static void AddAnimal(Animal animal)
+        internal static void AddAnimal(Animal selectedAnimal)
         {
             HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
-            db.Animals.InsertOnSubmit(animal);
+            Animal newAnimal = new Animal();
+
+            newAnimal.Name = selectedAnimal.Name;
+            newAnimal.CategoryId = selectedAnimal.CategoryId;
+            newAnimal.Weight = selectedAnimal.Weight;
+            newAnimal.Age = selectedAnimal.Age;
+            newAnimal.Demeanor = selectedAnimal.Demeanor;
+            newAnimal.KidFriendly = selectedAnimal.KidFriendly;
+            newAnimal.PetFriendly = selectedAnimal.PetFriendly;
+            newAnimal.DietPlanId = selectedAnimal.DietPlanId;
+            newAnimal.Gender = selectedAnimal.Gender;
+            newAnimal.AdoptionStatus = "Unadopted";
+            newAnimal.EmployeeId = selectedAnimal.EmployeeId;
+
+            db.Animals.InsertOnSubmit(newAnimal);
             db.SubmitChanges();
+
+
         }
 
         internal static int GetDietPlanId()
@@ -334,11 +366,12 @@ namespace HumaneSociety
             Console.WriteLine("Current animal diets listed are: ");
             foreach (var diet in dietPlans)
             {
-                Console.WriteLine("Name: "+diet.Name+", food type: "+diet.FoodType+", Amount of food in cups: "+diet.FoodAmountInCups);
+                Console.WriteLine("Diet #: "+diet.DietPlanId+", Name: "+diet.Name+", food type: "+diet.FoodType+", Amount of food in cups: "+diet.FoodAmountInCups);
             }
 
             Console.WriteLine("Type out the number associated with your animal's diet.");
             Console.WriteLine("If your animal does not have a diet plan, you may add one by typing in 'add'.");
+            Console.WriteLine("You may also update an existing diet plan by typing in 'update'.");
 
             string input = Console.ReadLine();
             bool validInput = false;
@@ -380,31 +413,74 @@ namespace HumaneSociety
                 }
 
                 newDiet.Name = name;
+                newDiet.FoodType = type;
+                newDiet.FoodAmountInCups = amount;
 
                 db.DietPlans.InsertOnSubmit(newDiet);
                 db.SubmitChanges();
 
-                newDiet = db.DietPlans.Where(m => m.Name == name).FirstOrDefault();
-
+                newDiet = db.DietPlans.Where(m => m.Name == name).Single();
+                Console.WriteLine("Diet successfully added. This diet shall now be used.");
                 return newDiet.DietPlanId;
+            }
+            else if (input.ToLower() == "update")
+            {
+                
+                Console.WriteLine("You have selected to update an existing diet plan. Type out its number below.");
+                DietPlan selectedDiet = db.DietPlans.Where(m => m.DietPlanId == int.Parse(Console.ReadLine())).Single();
+
+                while (!validInput)
+                {
+                    Console.WriteLine("What is its name?");
+                    name = Console.ReadLine();
+                    Console.WriteLine("What food type is it?");
+                    type = Console.ReadLine();
+                    Console.WriteLine("How many cups are in one serving?");
+                    amount = int.Parse(Console.ReadLine());
+
+                    Console.WriteLine("I see, so the name of the category is " + name + ", ");
+                    Console.WriteLine("the type of food is " + type + ", ");
+                    Console.WriteLine("and the amount of cups in one serving is " + amount.ToString() + ".");
+
+                    Console.WriteLine("Is all of the above information correct y/n?");
+                    string confirmInput = Console.ReadLine();
+                    switch (confirmInput.ToLower())
+                    {
+                        case "y":
+                            Console.WriteLine("Excellent. " + name + " shall be added into the database.");
+                            validInput = true;
+                            break;
+                        case "n":
+                            Console.WriteLine("I see. Retrying...");
+                            validInput = false;
+                            break;
+                        default:
+                            Console.WriteLine("Invalid input. Retrying...");
+                            validInput = false;
+                            break;
+                    }
+                }
+
+                selectedDiet.Name = name;
+                selectedDiet.FoodType = type;
+                selectedDiet.FoodAmountInCups = amount;
+
+                db.SubmitChanges();
+
+                Console.WriteLine("Diet successfully updated. This diet shall now be used.");
+                return selectedDiet.DietPlanId;
             }
 
             foreach (var diet in dietPlans)
             {
-                Console.Write(diet.DietPlanId+": "+diet.Name+" ");
                 if (int.Parse(input) == diet.DietPlanId)
                 {
                     return diet.DietPlanId;
                 }
-                else
-                {
-                    UserInterface.DisplayUserOptions("Input not recognized please try again.");
-                    return GetDietPlanId();
-                }
             }
 
-            Console.WriteLine("Error detected. Returning first ID value from diet plans.");
-            return 1;
+            UserInterface.DisplayUserOptions("Input not recognized please try again.");
+            return GetDietPlanId();
         }
 
         internal static int GetCategoryId()
@@ -417,10 +493,11 @@ namespace HumaneSociety
             Console.WriteLine("Current animal categories listed are: ");
             foreach (var category in categories)
             {
-                Console.Write(category.Name + " ");
+                Console.Write(category.CategoryId + ". " + category.Name + " ");
+                Console.WriteLine();
             }
 
-            Console.WriteLine("Type out the category your animal belongs to.");
+            Console.WriteLine("Type out the the category your animal belongs to.");
             Console.WriteLine("If your animal does not have a category, you may add one by typing in 'add'.");
 
             string input = Console.ReadLine();
@@ -466,20 +543,14 @@ namespace HumaneSociety
 
             foreach (var category in categories)
             {
-                Console.Write(category + " ");
-                if (input.ToLower() == category.Name.ToString().ToLower())
+                if (input.ToLower() == category.Name.ToLower())
                 {
                     return category.CategoryId;
                 }
-                else
-                {
-                    UserInterface.DisplayUserOptions("Input not recognized please try again.");
-                    return GetCategoryId();
-                }
             }
 
-            Console.WriteLine("Error detected. Returning first ID value from categories.");
-            return 1;
+            UserInterface.DisplayUserOptions("Input not recognized please try again.");
+            return GetCategoryId();
         }
     }
 }

@@ -253,8 +253,10 @@ namespace HumaneSociety
             animal.Demeanor = UserInterface.GetStringData("demeanor", "the animal's");
             animal.KidFriendly = UserInterface.GetBitData("the animal", "child friendly");
             animal.PetFriendly = UserInterface.GetBitData("the animal", "pet friendly");
-            animal.Weight = UserInterface.GetIntegerData("the animal", "the weight of the");
+            animal.Weight = UserInterface.GetIntegerData("the animal", "weight of the");
+            animal.Gender = UserInterface.GetStringData("the animal", "gender of the");
             animal.DietPlanId = Query.GetDietPlanId();
+            animal.EmployeeId = employee.EmployeeId;
             Query.AddAnimal(animal);
         }
         protected override void LogInPreExistingUser()
@@ -268,7 +270,7 @@ namespace HumaneSociety
             {
                 Console.Clear();
                 employee = Query.EmployeeLogin(userName, password);
-                UserInterface.DisplayUserOptions("Login successfull. Welcome.");
+                UserInterface.DisplayUserOptions("Login successful. Welcome.");
             }
             catch
             {
@@ -323,7 +325,8 @@ namespace HumaneSociety
             string username = UserInterface.GetStringData("username", "your");
             if (Query.CheckEmployeeUserNameExist(username))
             {
-                UserInterface.DisplayUserOptions("Username already in use please try another username.");
+                UserInterface.DisplayUserOptions("Username already in use. Press ENTER to try another username.");
+                Console.ReadLine();
                 GetUserName();
             }
             else

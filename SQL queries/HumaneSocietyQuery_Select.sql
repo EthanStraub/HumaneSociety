@@ -1,1 +1,1 @@
-SELECT * FROM Employees
+SELECT * FROM Categories

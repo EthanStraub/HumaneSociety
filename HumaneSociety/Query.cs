@@ -136,9 +136,26 @@ namespace HumaneSociety
             return selectedRoom;
         }
 
-        internal static void UpdateAdoption(bool v, Adoption adoption)
+        internal static void UpdateAdoption(bool verification, Adoption adoption)
         {
-            throw new NotImplementedException();
+            HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
+            Animal adoptedAnimal = db.Animals.Where(a => a.AnimalId == adoption.AnimalId).Single();
+            Adoption adoptionFromDb = db.Adoptions.Where(d => d.AdoptionId == adoption.AdoptionId).Single();
+
+            if (verification)
+            {
+                adoptionFromDb.ApprovalStatus = "approved";
+                adoptedAnimal.AdoptionStatus = "Adopted";
+            }
+            else
+            {
+                adoptionFromDb.ApprovalStatus = "pending";
+                adoptedAnimal.AdoptionStatus = "Unadopted";
+            }
+
+            adoptionFromDb.PaymentCollected = verification;
+
+            db.SubmitChanges();
         }
 
         internal static void RunEmployeeQueries(Employee employee, string query)
@@ -243,9 +260,23 @@ namespace HumaneSociety
             return selectedAnimal;
         }
 
-        internal static void Adopt(object animal, Client client)
+        internal static void Adopt(Animal animal, Client client)
         {
-            throw new NotImplementedException();
+            HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
+
+            Adoption pendingAdoption = new Adoption();
+
+            pendingAdoption.ClientId = client.ClientId;
+            pendingAdoption.AnimalId = animal.AnimalId;
+
+            pendingAdoption.ApprovalStatus = "pending";
+            pendingAdoption.AdoptionFee = 50;
+            pendingAdoption.PaymentCollected = false;
+
+            animal.AdoptionStatus = "Adopted";
+
+            db.Adoptions.InsertOnSubmit(pendingAdoption);
+            db.SubmitChanges();
         }
 
         internal static Employee RetrieveEmployeeUser(string email, int employeeNumber)
@@ -275,7 +306,13 @@ namespace HumaneSociety
 
         internal static AnimalShot[] GetShots(Animal animal)
         {
-            throw new NotImplementedException();
+            HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
+
+            var selectedShots = db.AnimalShots.Where(s => s.AnimalId == animal.AnimalId);
+
+            AnimalShot[] shotList = selectedShots.ToArray();
+
+            return shotList;
         }
 
         internal static bool CheckEmployeeUserNameExist(string userName)
@@ -349,7 +386,9 @@ namespace HumaneSociety
             db.Animals.InsertOnSubmit(newAnimal);
             db.SubmitChanges();
 
+            db.Rooms.Where(r => r.AnimalId == null).FirstOrDefault().AnimalId = newAnimal.AnimalId;
 
+            db.SubmitChanges();
         }
 
         internal static int GetDietPlanId()

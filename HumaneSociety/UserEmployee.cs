@@ -68,7 +68,7 @@ namespace HumaneSociety
             {
                 foreach(Adoption adoption in adoptions)
                 {
-                    adoptionInfo.Add($"{counter}. {adoption.Client.FirstName} {adoption.Client.LastName}, {adoption.Animal.Name} {adoption.Animal.Category}");
+                    adoptionInfo.Add($"{counter}. {adoption.Client.FirstName} {adoption.Client.LastName}, {adoption.Animal.Name} {adoption.Animal.Category.Name}");
                     counter++;
                 }
                 UserInterface.DisplayUserOptions(adoptionInfo);

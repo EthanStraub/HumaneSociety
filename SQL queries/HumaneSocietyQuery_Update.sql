@@ -1,3 +1,3 @@
-UPDATE Categories
-SET Name = 'spider'
-WHERE CategoryId = 7
+UPDATE Animals
+SET AdoptionStatus = 'Unadopted'
+WHERE CategoryId = 4

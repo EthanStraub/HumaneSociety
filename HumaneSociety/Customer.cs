@@ -298,7 +298,7 @@ namespace HumaneSociety
                     UpdatePassword();
                     break;
                 case 6:
-                    break;
+                    return;
                 default:
                     UserInterface.DisplayUserOptions("You have reached this message in error please contact support or administator and give them code 10928849");
                     break;

@@ -76,7 +76,11 @@ namespace HumaneSociety
                 int input = UserInterface.GetIntegerData();
                 ApproveAdoption(adoptions[input - 1]);
             }
-
+            else
+            {
+                Console.WriteLine("No pending adoptions. Press ENTER to return.");
+                Console.ReadLine();
+            }
         }
 
         private void ApproveAdoption(Adoption adoption)

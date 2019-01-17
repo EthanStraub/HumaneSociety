@@ -248,7 +248,222 @@ namespace HumaneSociety
 
         internal static Animal[] SearchForAnimalByMultipleTraits()
         {
-            throw new NotImplementedException();
+            HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
+
+            List<Animal> searchList = new List<Animal>();
+
+            while (searchList.Count != 1)
+            {
+                Console.WriteLine("What would you like to search by?");
+                string[] options = { "1. Name", "2. Category", "3. Weight", "4. Age", "5. Gender", "6. Demeanor/Personality","7. Kid-Friendly", "9. Restart your search" };
+                foreach (string option in options)
+                {
+                    Console.WriteLine(option);
+                }
+                Console.WriteLine("Type out the number that corresponds to your criteria.");
+                int userSearchChoice = UserInterface.GetIntegerData();
+
+                switch (userSearchChoice)
+                {
+                    case 1:
+                        Console.WriteLine("What is the name of your animal?");
+                        string searchedName = Console.ReadLine();
+                        searchList = searchByName(searchList, searchedName, db);
+                        break;
+                    case 2:
+                        Console.WriteLine("What is the category (species) # of your animal?");
+                        Console.WriteLine("Current animal categories listed are: ");
+                        var categories = db.Categories;
+                        foreach (var category in categories)
+                        {
+                            Console.Write(category.CategoryId + ". " + category.Name + " ");
+                            Console.WriteLine();
+                        }
+                        int searchedCategory = UserInterface.GetIntegerData();
+                        searchList = searchByCategory(searchList, searchedCategory, db);
+                        break;
+                    case 3:
+                        Console.WriteLine("How much does your animal weigh?");
+                        int searchedWeight = UserInterface.GetIntegerData();
+                        searchList = searchByWeight(searchList, searchedWeight, db);
+                        break;
+                    case 4:
+                        Console.WriteLine("How old is your animal?");
+                        int searchedAge = UserInterface.GetIntegerData();
+                        searchList = searchByAge(searchList, searchedAge, db);
+                        break;
+                    case 5:
+                        Console.WriteLine("What is the gender of your animal?");
+                        string searchedGender = Console.ReadLine();
+                        searchList = searchByGender(searchList, searchedGender, db);
+                        break;
+                    case 6:
+                        Console.WriteLine("What is the demeanor/personality of your animal?");
+                        string searchedDem = Console.ReadLine();
+                        searchList = searchByDem(searchList, searchedDem, db);
+                        break;
+                    case 7:
+                        Console.WriteLine("Is your animal kid-friendly?");
+                        bool friendlyStatus = false;
+                        string boolInput = Console.ReadLine();
+                        if (boolInput.ToLower() == "yes" || boolInput.ToLower() == "y")
+                        {
+                            friendlyStatus = true;
+                        }
+                        else
+                        {
+                            friendlyStatus = false;
+                        }
+                        searchList = searchByKidFriendly(searchList, friendlyStatus, db);
+                        break;
+                    case 9:
+                        searchList = new List<Animal>();
+                        break;
+                    default:
+                        break;
+                }
+                if (searchList.Count == 1)
+                {
+                    return searchList.ToArray();
+                }
+                else if (searchList.Count > 1)
+                {
+                    UserInterface.DisplayUserOptions("Several animals found please refine your search.");
+                }
+                else
+                {
+                    UserInterface.DisplayUserOptions("No animals found.");
+                }
+            }
+            return searchList.ToArray();
+        }
+
+        //Search methods
+        internal static List<Animal> searchByName(List<Animal> list, string animalName, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.Name == animalName).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list.ToList())
+                {
+                    if (animal.Name != animalName)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
+        }
+        internal static List<Animal> searchByCategory(List<Animal> list, int animalCategory, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.CategoryId == animalCategory).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list)
+                {
+                    if (animal.CategoryId != animalCategory)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
+        }
+        internal static List<Animal> searchByWeight(List<Animal> list, int animalWeight, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.Weight == animalWeight).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list)
+                {
+                    if (animal.Weight != animalWeight)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
+        }
+        internal static List<Animal> searchByAge(List<Animal> list, int animalAge, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.Age == animalAge).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list)
+                {
+                    if (animal.Age != animalAge)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
+        }
+        internal static List<Animal> searchByGender(List<Animal> list, string animalGender, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.Gender == animalGender).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list.ToList())
+                {
+                    if (animal.Gender != animalGender)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
+        }
+        internal static List<Animal> searchByDem(List<Animal> list, string animalDemeanor, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.Demeanor == animalDemeanor).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list.ToList())
+                {
+                    if (animal.Demeanor != animalDemeanor)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
+        }
+        internal static List<Animal> searchByKidFriendly(List<Animal> list, bool animalKidFriendly, HumaneSocietyDBDataContext db)
+        {
+            if (list.Count == 0)
+            {
+                list = db.Animals.Where(a => a.KidFriendly == animalKidFriendly).ToList();
+            }
+            else
+            {
+                foreach (Animal animal in list.ToList())
+                {
+                    if (animal.KidFriendly != animalKidFriendly)
+                    {
+                        list.Remove(animal);
+                    }
+                }
+            }
+            return list;
         }
 
         internal static Animal GetAnimalByID(int iD)
@@ -299,7 +514,7 @@ namespace HumaneSociety
         {
             HumaneSocietyDBDataContext  db = new HumaneSocietyDBDataContext();
 
-            Employee employeeFromDb = db.Employees.Where(e => e.UserName == userName && e.Password == password).FirstOrDefault();
+            Employee employeeFromDb = db.Employees.Where(e => e.UserName == userName && e.Password == password).Single();
 
             return employeeFromDb;
         }
@@ -406,8 +621,26 @@ namespace HumaneSociety
         internal static void RemoveAnimal(Animal selectedAnimal)
         {
             HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
-            Animal deletedAnimal = db.Animals.Where(a => a.AnimalId == selectedAnimal.AnimalId).Single();
 
+            Animal deletedAnimal = db.Animals.Where(a => a.AnimalId == selectedAnimal.AnimalId).Single();
+            Room emptiedRoom = db.Rooms.Where(r => r.AnimalId == selectedAnimal.AnimalId).Single();
+            var deletedShots = db.AnimalShots.Where(s => s.AnimalId == selectedAnimal.AnimalId);
+            Adoption deletedAdoption = db.Adoptions.Where(s => s.AnimalId == selectedAnimal.AnimalId).FirstOrDefault();
+
+            emptiedRoom.AnimalId = null;
+
+            if (deletedShots != null)
+            {
+                foreach (AnimalShot shot in deletedShots)
+                {
+                    db.AnimalShots.DeleteOnSubmit(shot);
+                }
+            }
+            if (deletedAdoption != null)
+            {
+                db.Adoptions.DeleteOnSubmit(deletedAdoption);
+            }
+            
             db.Animals.DeleteOnSubmit(deletedAnimal);
             db.SubmitChanges();
         }
@@ -582,7 +815,7 @@ namespace HumaneSociety
                 Console.WriteLine();
             }
 
-            Console.WriteLine("Type out the the category your animal belongs to.");
+            Console.WriteLine("Type out the the name of the category your animal belongs to.");
             Console.WriteLine("If your animal does not have a category, you may add one by typing in 'add'.");
 
             string input = Console.ReadLine();

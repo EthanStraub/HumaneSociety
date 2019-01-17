@@ -158,7 +158,7 @@ namespace HumaneSociety
         }
         private static int GetState()
         {
-            UserInterface.DisplayUserOptions("Please enter your state (abbreviation or full state name");
+            UserInterface.DisplayUserOptions("Please enter your state (abbreviation or full state name)");
             string state = UserInterface.GetUserInput();
             var states = Query.GetStates();
             var stateNames = from territory in states select territory.Name.ToLower();
@@ -202,9 +202,11 @@ namespace HumaneSociety
                 string lastName = UserInterface.GetUserInput();
                 int zipCode = GetZipCode();
                 int stateId = GetState();
+                UserInterface.DisplayUserOptions("Please enter your house/apt #");
+                string streetAddress1 = UserInterface.GetUserInput();
                 UserInterface.DisplayUserOptions("Please enter your street address");
-                string streetAddress = UserInterface.GetUserInput();
-                Query.AddNewClient(firstName, lastName, username, password, email, streetAddress, zipCode, stateId);
+                string streetAddress2 = UserInterface.GetUserInput();
+                Query.AddNewClient(firstName, lastName, username, password, email, streetAddress1, streetAddress2, zipCode, stateId);
                 Console.Clear();
                 UserInterface.DisplayUserOptions("Profile successfully added");
                 return true;
@@ -245,9 +247,11 @@ namespace HumaneSociety
                     string lastName = UserInterface.GetUserInput();
                     int zipCode = GetZipCode();
                     int stateId = GetState();
+                    UserInterface.DisplayUserOptions("Please enter your house/apt #");
+                    string streetAddress1 = UserInterface.GetUserInput();
                     UserInterface.DisplayUserOptions("Please enter your street address");
-                    string streetAddress = UserInterface.GetUserInput();
-                    Query.AddNewClient(firstName, lastName, username, password, email, streetAddress, zipCode, stateId);
+                    string streetAddress2 = UserInterface.GetUserInput();
+                    Query.AddNewClient(firstName, lastName, username, password, email, streetAddress1, streetAddress2, zipCode, stateId);
                     Console.Clear();
                     UserInterface.DisplayUserOptions("Profile successfully added");
 
@@ -261,7 +265,7 @@ namespace HumaneSociety
         }
         public void UpdateClientInfo()
         {
-            List<string> options = new List<string>() { "What would you like to update? (Please enter number of option)", "1: Name", "2: Address", "3: Email", "4: Username", "5: Password", "6. Back" };
+            List<string> options = new List<string>() { "What would you like to update? (Please enter number of option)", "1: Name", "2: Address", "3: Email", "4: Username", "5: Password", "9. Back" };
             int input = default(int);
             while (input != 9)
             {
@@ -298,7 +302,7 @@ namespace HumaneSociety
                     UpdatePassword();
                     break;
                 case 6:
-                    return;
+                    break;
                 default:
                     UserInterface.DisplayUserOptions("You have reached this message in error please contact support or administator and give them code 10928849");
                     break;
@@ -359,8 +363,10 @@ namespace HumaneSociety
             DisplayCurrentAddress(client);
             client.Address.Zipcode = GetZipCode();
             client.Address.USStateId = GetState();
-            UserInterface.DisplayUserOptions("Please enter your street address");
+            UserInterface.DisplayUserOptions("Please enter your house/apt #");
             client.Address.AddressLine1 = UserInterface.GetUserInput();
+            UserInterface.DisplayUserOptions("Please enter your street address");
+            client.Address.AddressLine2 = UserInterface.GetUserInput();
             Query.UpdateClient(client);
 
         }

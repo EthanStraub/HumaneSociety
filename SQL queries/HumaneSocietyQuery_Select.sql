@@ -1,1 +1,1 @@
-SELECT * FROM Categories
+SELECT * FROM Addresses

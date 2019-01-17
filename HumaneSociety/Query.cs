@@ -37,7 +37,7 @@ namespace HumaneSociety
             return allClients;
         }
 
-        internal static void AddNewClient(string firstName, string lastName, string username, string password, string email, string streetAddress, int zipCode, int stateId)
+        internal static void AddNewClient(string firstName, string lastName, string username, string password, string email, string streetAddress1, string streetAddress2, int zipCode, int stateId)
         {
             HumaneSocietyDBDataContext  db = new HumaneSocietyDBDataContext();
 
@@ -49,14 +49,14 @@ namespace HumaneSociety
             newClient.Password = password;
             newClient.Email = email;
 
-            Address addressFromDb = db.Addresses.Where(a => a.AddressLine1 == streetAddress && a.Zipcode == zipCode && a.USStateId == stateId).FirstOrDefault();
+            Address addressFromDb = db.Addresses.Where(a => a.AddressLine1 == streetAddress1 && a.AddressLine2 == streetAddress2 && a.Zipcode == zipCode && a.USStateId == stateId).FirstOrDefault();
 
             // if the address isn't found in the Db, create and insert it
             if (addressFromDb == null)
             {
                 Address newAddress = new Address();
-                newAddress.AddressLine1 = streetAddress;
-                newAddress.AddressLine2 = null;
+                newAddress.AddressLine1 = streetAddress1;
+                newAddress.AddressLine2 = streetAddress2;
                 newAddress.Zipcode = zipCode;
                 newAddress.USStateId = stateId;
 
@@ -103,14 +103,14 @@ namespace HumaneSociety
             Address clientAddress = clientWithUpdates.Address;
 
             // look for existing Address in Db (null will be returned if the address isn't already in the Db
-            Address updatedAddress = db.Addresses.Where(a => a.AddressLine1 == clientAddress.AddressLine1 && a.USStateId == clientAddress.USStateId && a.Zipcode == clientAddress.Zipcode).FirstOrDefault();
+            Address updatedAddress = db.Addresses.Where(a => a.AddressLine1 == clientAddress.AddressLine1 && a.AddressLine2 == clientAddress.AddressLine2 && a.USStateId == clientAddress.USStateId && a.Zipcode == clientAddress.Zipcode).FirstOrDefault();
 
             // if the address isn't found in the Db, create and insert it
             if(updatedAddress == null)
             {
                 Address newAddress = new Address();
                 newAddress.AddressLine1 = clientAddress.AddressLine1;
-                newAddress.AddressLine2 = null;
+                newAddress.AddressLine2 = clientAddress.AddressLine2;
                 newAddress.Zipcode = clientAddress.Zipcode;
                 newAddress.USStateId = clientAddress.USStateId;
 
@@ -354,7 +354,53 @@ namespace HumaneSociety
 
         internal static void EnterAnimalUpdate(Animal animal, Dictionary<int, string> updates)
         {
-            throw new NotImplementedException();
+            HumaneSocietyDBDataContext db = new HumaneSocietyDBDataContext();
+            Animal animalFromDb = db.Animals.Where(a => a.AnimalId == animal.AnimalId).Single();
+
+            if (updates.ContainsKey(1))
+            {
+                animalFromDb.Category = db.Categories.Where(c => c.Name == updates[1]).FirstOrDefault();
+            }
+            if (updates.ContainsKey(2))
+            {
+                animalFromDb.Name = updates[2];
+            }
+            if (updates.ContainsKey(3))
+            {
+                animalFromDb.Age = int.Parse(updates[3]);
+            }
+            if (updates.ContainsKey(4))
+            {
+                animalFromDb.Demeanor = updates[4];
+            }
+            if (updates.ContainsKey(5))
+            {
+                if (updates[5].ToLower() == "yes" || updates[5].ToLower() == "y")
+                {
+                    animalFromDb.KidFriendly = true;
+                }
+                else
+                {
+                    animalFromDb.KidFriendly = false;
+                }  
+            }
+            if (updates.ContainsKey(6))
+            {
+                if (updates[6].ToLower() == "yes" || updates[6].ToLower() == "y")
+                {
+                    animalFromDb.PetFriendly = true;
+                }
+                else
+                {
+                    animalFromDb.PetFriendly = false;
+                }
+            }
+            if (updates.ContainsKey(7))
+            {
+                animalFromDb.Weight = int.Parse(updates[7]);
+            }
+
+            db.SubmitChanges();
         }
 
         internal static void RemoveAnimal(Animal selectedAnimal)
